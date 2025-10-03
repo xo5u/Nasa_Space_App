@@ -13,6 +13,7 @@
     "@tailwindcss/vite": "^4.1.14",
     "leaflet": "^1.9.4",
     "leaflet-extra-markers": "^1.2.2",
+    "leaflet.heat": "^0.2.0",
     "react": "^19.1.1",
     "react-404-error-page": "^1.1.0",
     "react-dom": "^19.1.1",
