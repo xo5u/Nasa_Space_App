@@ -56,13 +56,7 @@ export default function AirQualityMap({ data }) {
             {Object.entries(item).map(([key, value]) => {
               if (["lat", "lon", "location"].includes(key)) return null;
               // Display TEMPO satellite image
-              if (key === "tempo" && value?.imageUrl) {
-                return (
-                  <li key={key}>
-                    TEMPO Satellite: <img src={value.imageUrl} alt="satellite" width={150} />
-                  </li>
-                );
-              }
+             
               return (
                 <li key={key} style={{ color: getColor(value), fontWeight: "bold" }}>
                   {key.toLowerCase()}: {value?.toString()} {key.includes("pm") ? "µg/m³" : ""}
