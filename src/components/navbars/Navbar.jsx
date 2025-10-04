@@ -1,5 +1,6 @@
 import React from "react";
 import { useState } from "react";
+import { Link } from "react-router-dom"; // <-- import Link
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -42,21 +43,23 @@ function Navbar() {
             {["home", "dashboard", "about"].map((link) => {
               const href = link === "home" ? "/" : `/${link}`;
               return (
-                <a key={link} href={href} className="relative group">
+                <Link
+                  key={link}
+                  to={href}
+                  className="relative group"
+                >
                   <span className="text-blue-100 group-hover:text-white transition-colors duration-300">
                     {link}
                   </span>
                   <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-400 group-hover:w-full transition-all duration-300"></div>
                   <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white/20 group-hover:w-full transition-all duration-500 delay-100"></div>
-                </a>
+                </Link>
               );
             })}
           </div>
 
           {/* Right Side Buttons */}
           <div className="flex items-center space-x-4">
-            {/* CTA Button */}
-
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -98,15 +101,19 @@ function Navbar() {
         {/* Mobile Menu */}
         {isOpen && (
           <div className="mt-4 capitalize  md:hidden px-2 pt-2 pb-3 space-y-1 bg-blue-900/50 backdrop-blur-sm rounded-lg border border-blue-500/10">
-            {["home", "dashboard", "about"].map((link) => (
-              <a
-                key={link}
-                href={link}
-                className="block px-3 py-2 rounded-md text-base font-medium text-blue-100 hover:text-white hover:bg-blue-800/50 transition-all duration-200"
-              >
-                {link}
-              </a>
-            ))}
+            {["home", "dashboard", "about"].map((link) => {
+              const href = link === "home" ? "/" : `/${link}`;
+              return (
+                <Link
+                  key={link}
+                  to={href}
+                  className="block px-3 py-2 rounded-md text-base font-medium text-blue-100 hover:text-white hover:bg-blue-800/50 transition-all duration-200"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {link}
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>
