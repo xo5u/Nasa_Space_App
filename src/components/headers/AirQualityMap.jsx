@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { getColor } from "../../utils/getColors";
-import "leaflet-extra-markers";
 import "leaflet-extra-markers/dist/css/leaflet.extra-markers.min.css";
+import "leaflet-extra-markers/dist/css/leaflet.extra-markers.min.css";
+import "leaflet-extra-markers";
+
+import { getColor } from "../../utils/getColors";
 import { useAirQuality } from "../../hooks/useAirQuality";
 
-// Component: FlyTo Marker
+// Fly to marker
 function FlyToMarker({ position }) {
   const map = useMap();
   React.useEffect(() => {
@@ -16,19 +18,19 @@ function FlyToMarker({ position }) {
   return null;
 }
 
-// Component: Handle Map Clicks
+// Handle map clicks
 function ClickHandler({ onClick }) {
   useMapEvents({
-    click: (e) => {
+    click(e) {
       onClick([e.latlng.lat, e.latlng.lng]);
     },
   });
   return null;
 }
 
-function AirQualityMap({ data }) {
+export default function AirQualityMap({ data }) {
   const [clickedPosition, setClickedPosition] = useState(null);
-  const { aqData: clickedData } = useAirQuality(
+  const { data: clickedData } = useAirQuality(
     clickedPosition?.[0],
     clickedPosition?.[1]
   );
@@ -37,76 +39,55 @@ function AirQualityMap({ data }) {
 
   const center = [data[0].lat, data[0].lon];
 
+  const renderMarker = (item, position, keyPrefix = "") => {
+    const customIcon = L.ExtraMarkers.icon({
+      icon: "fa-number",
+      number: item.pm25,
+      markerColor: getColor(item.pm25),
+      shape: "circle",
+      prefix: "fa",
+    });
+
+    return (
+      <Marker key={`${keyPrefix}-${item.lat}-${item.lon}`} position={position} icon={customIcon}>
+        <Popup>
+          <strong>{item.location}</strong>
+          <ul>
+            {Object.entries(item).map(([key, value]) => {
+              if (["lat", "lon", "location"].includes(key)) return null;
+              // Display TEMPO satellite image
+              if (key === "tempo" && value?.imageUrl) {
+                return (
+                  <li key={key}>
+                    TEMPO Satellite: <img src={value.imageUrl} alt="satellite" width={150} />
+                  </li>
+                );
+              }
+              return (
+                <li key={key} style={{ color: getColor(value), fontWeight: "bold" }}>
+                  {key.toLowerCase()}: {value?.toString()} {key.includes("pm") ? "µg/m³" : ""}
+                </li>
+              );
+            })}
+          </ul>
+        </Popup>
+      </Marker>
+    );
+  };
+
   return (
-    <MapContainer center={center} zoom={10} style={{ height: "600px", width: "100%" }}>
+    <MapContainer center={center} zoom={5} style={{ height: "600px", width: "100%" }}>
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution="&copy; OpenStreetMap contributors"
       />
 
-      {data.map((item, idx) => {
-        const customIcon = L.ExtraMarkers.icon({
-          icon: "fa-number",
-          number: item.pm25,
-          markerColor: getColor(item.pm25),
-          shape: "circle",
-          prefix: "fa",
-        });
+      {data.map((item) => renderMarker(item, [item.lat, item.lon], "default"))}
 
-        return (
-          <Marker key={idx} position={[item.lat, item.lon]} icon={customIcon}>
-            <Popup>
-              <strong>{item.location}</strong>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                {Object.entries(item).map(([key, value]) => {
-                  if (["lat", "lon", "location"].includes(key)) return null;
-                  return (
-                    <li key={key} style={{ color: getColor(value), fontWeight: "bold" }}>
-                      {key.toUpperCase()}: {value} µg/m³
-                    </li>
-                  );
-                })}
-              </ul>
-            </Popup>
-          </Marker>
-        );
-      })}
+      {clickedPosition && clickedData?.map((item) => renderMarker(item, clickedPosition, "click"))}
 
-      {/* Marker for clicked location */}
-      {clickedPosition && clickedData && clickedData.map((item, idx) => {
-        const customIcon = L.ExtraMarkers.icon({
-          icon: "fa-number",
-          number: item.pm25,
-          markerColor: getColor(item.pm25),
-          shape: "circle",
-          prefix: "fa",
-        });
-        return (
-          <Marker key={`click-${idx}`} position={clickedPosition} icon={customIcon}>
-            <Popup>
-              <strong>{item.location}</strong>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                {Object.entries(item).map(([key, value]) => {
-                  if (["lat", "lon", "location"].includes(key)) return null;
-                  return (
-                    <li key={key} style={{ color: getColor(value), fontWeight: "bold" }}>
-                      {key.toUpperCase()}: {value} µg/m³
-                    </li>
-                  );
-                })}
-              </ul>
-            </Popup>
-          </Marker>
-        );
-      })}
-
-      {/* FlyTo the clicked location */}
       {clickedPosition && <FlyToMarker position={clickedPosition} />}
-
-      {/* Handle map clicks */}
       <ClickHandler onClick={setClickedPosition} />
     </MapContainer>
   );
 }
-
-export default AirQualityMap;

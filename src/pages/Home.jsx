@@ -1,39 +1,44 @@
-import React from 'react'
-import MapGeneral from '../components/headers/AirQualityMap'
-import AirQualityMap from '../components/headers/AirQualityMap'
-import { useAirQuality } from '../hooks/useAirQuality'
-import { useState } from 'react'
-import CityList from '../components/ui/CityList'
-function Home() {
-    const [selectedCity, setSelectedCity] = useState(null);
+import React, { useState } from "react";
+import AirQualityMap from "../components/headers/AirQualityMap";
+import CityList from "../components/ui/CityList";
+import { useAirQuality } from "../hooks/useAirQuality";
+import { useWeatherRecommendation } from "../hooks/useWeatherRecommendation";
 
-  // مثال: مدن ومواقعها
-  const cities = [
-    { name: "New Delhi, India", lat: 28.6139, lon: 77.209 },
-    { name: "Beijing, China", lat: 39.9042, lon: 116.4074 },
-    { name: "Los Angeles, USA", lat: 34.0522, lon: -118.2437 },
-  ];
+const cities = [
+  { name: "New York, USA", lat: 40.7128, lon: -74.0060 },
+  { name: "Toronto, Canada", lat: 43.65107, lon: -79.347015 },
+  { name: "Los Angeles, USA", lat: 34.0522, lon: -118.2437 },
+];
 
-  const { aqData, loading, error } = useAirQuality(
-    selectedCity?.lat,
-    selectedCity?.lon
+export default function Home() {
+  const [selectedCity, setSelectedCity] = useState(cities[0]);
+  const { data, loading, error } = useAirQuality(selectedCity.lat, selectedCity.lon);
+
+  const { recommendation, loading: recLoading, error: recError } = useWeatherRecommendation(
+    data?.[0]
   );
-    if (loading) return <p>Loading air quality data...</p>;
-    if (error) return <p>Error fetching data: {error.message}</p>;
-  
-    return (
-        <>
-        <h1 className='text-2xl font-bold '>Air Quality Map</h1>
-        <CityList cities={cities} onSelect={setSelectedCity} />
-      {loading && <p>Loading...</p>}
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold">welcome to Nasa dashbaord map </h1>
+      {/* <CityList cities={cities} onSelect={setSelectedCity} /> */}
+      <div className="flex gap-3">
+      {loading && <p>Loading data...</p>}
       {error && <p>Error: {error.message}</p>}
-      <AirQualityMap data={aqData} flyToPosition={selectedCity && [selectedCity.lat, selectedCity.lon]} />
-     <div>Home</div>
-    <MapGeneral />
-
-    </>
-   
-  )
+      <div className="flex-10">
+      {data && <AirQualityMap data={data} />}
+      </div>
+      {/* <div style={{ marginTop: "20px" }}>
+        {recLoading && <p>Generating recommendation...</p>}
+        {recError && <p>Error: {recError.message}</p>}
+        {recommendation && (
+          <div className="p-4 border rounded">
+            <h2 className="font-bold mb-2">Today's Weather Recommendation:</h2>
+            <p>{recommendation}</p>
+          </div>
+        )}
+      </div> */}
+      </div>
+    </div>
+  );
 }
-
-export default Home
