@@ -2,7 +2,12 @@ import React from 'react'
 
 function Navbar() {
   return (
-    <div>Navbar</div>
+    <>
+    <div>
+    <div className='text-5xl font-extrabold text-amber-500 py-4'>nasa earth observation dashboard </div>
+    </div>
+    
+    </>
   )
 }
 
