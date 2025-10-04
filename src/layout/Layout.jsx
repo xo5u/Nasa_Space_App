@@ -7,7 +7,7 @@ import Footer from '../components/footers/Footer'
 function Layout() {
   return (
 <>
-<div className='bg-cyan-900 text-white p-4'>
+<div className=' bg-gradient-to-r from-blue-950 via-blue-900 to-blue-950  text-white '>
 <Navbar />
 <Outlet />
 <Footer />
